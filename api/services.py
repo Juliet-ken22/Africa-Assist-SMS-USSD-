@@ -1,16 +1,20 @@
+import os
 import requests
 from groq import Groq
 
-# Africa's Talking credentials
-AT_USERNAME = "afriassist"
-AT_API_KEY = "atsk_4e25febabf2e15333d81173fb49eb698d481f2ffe49b1d6d47b51530e0ea5c7fb6ba97e9"
+# All credentials from environment variables
+ENVIRONMENT = os.environ.get('ENVIRONMENT', 'development')
+AT_USERNAME = os.environ.get('AT_USERNAME')
+AT_API_KEY = os.environ.get('AT_API_KEY')
+GROQ_API_KEY = os.environ.get('GROQ_API_KEY')
 
-# Groq credentials - FREE!
-GROQ_API_KEY = "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"
+# SMS URLs
+AT_SMS_URL_SANDBOX = "https://api.sandbox.africastalking.com/version1/messaging"
+AT_SMS_URL_LIVE = "https://api.africastalking.com/version1/messaging"
 
 def send_sms(phone, message):
     try:
-        url = "https://api.africastalking.com/version1/messaging/bulk"
+        url = AT_SMS_URL_SANDBOX if ENVIRONMENT == 'development' else AT_SMS_URL_LIVE
         headers = {
             "Accept": "application/json",
             "Content-Type": "application/x-www-form-urlencoded",
@@ -49,7 +53,7 @@ def ask_ai(system_prompt, question):
 # -----------------------------------------------
 # def ask_ai(system_prompt, question):
 #     import openai
-#     openai.api_key = "PASTE_HACKATHON_KEY_HERE"
+#     openai.api_key = os.environ.get('OPENAI_API_KEY')
 #     response = openai.chat.completions.create(
 #         model="gpt-3.5-turbo",
 #         messages=[
