@@ -10,7 +10,7 @@ GROQ_API_KEY = os.environ.get('GROQ_API_KEY')
 
 # SMS URLs
 AT_SMS_URL_SANDBOX = "https://api.sandbox.africastalking.com/version1/messaging"
-AT_SMS_URL_LIVE = "https://api.africastalking.com/version1/messaging"
+AT_SMS_URL_LIVE = "https://api.africastalking.com/version1/messaging/"
 
 def send_sms(phone, message):
     try:
@@ -22,6 +22,7 @@ def send_sms(phone, message):
         }
         payload = {
             "username": AT_USERNAME,
+            "from":"10614",
             "to": phone,
             "message": message
         }
@@ -62,3 +63,5 @@ def ask_ai(system_prompt, question):
 #         ]
 #     )
 #     return response.choices[0].message.content
+
+
