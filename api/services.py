@@ -19,7 +19,7 @@ def send_sms(phone, message):
         print(f"Using URL: {url}")
         print(f"Sending to: {phone}")
         print(f"AT_USERNAME: {AT_USERNAME}")
-
+        
         headers = {
             "Accept": "application/json",
             "Content-Type": "application/x-www-form-urlencoded",
@@ -27,20 +27,14 @@ def send_sms(phone, message):
         }
         payload = {
             "username": AT_USERNAME,
-            "to": phone,
+            "to": phone,        # user's phone number
             "message": message,
-            "from": "10614"
+            "from": "10614"     # your shortcode
         }
         response = requests.post(url, headers=headers, data=payload, verify=False)
         print(f"Response status: {response.status_code}")
         print(f"Response text: {response.text}")
-        print(f"Response headers: {dict(response.headers)}")
-        
-        if response.text:
-            return response.json()
-        else:
-            print("Empty response from Africa's Talking")
-            return None
+        return response.json()
     except Exception as e:
         print(f"SMS send error: {e}")
         return None
