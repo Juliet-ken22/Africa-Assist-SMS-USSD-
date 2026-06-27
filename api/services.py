@@ -71,3 +71,4 @@ def ask_ai(system_prompt, question):
 #     return response.choices[0].message.content
 
 
+send_sms("256742618584", "Test message from AfriAssist")  # Replace with a valid phone number for testing
