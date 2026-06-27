@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AfriAssist Dashboard</title>
+  <style>
+    :root {
+      --primary: #10b981;
+      --primary-dark: #059669;
+      --bg-main: #f8fafc;
+      --card-bg: #ffffff;
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      
+      --color-learn: #10b981;
+      --color-farm: #3b82f6;
+      --color-health: #f97316;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+      background: var(--bg-main); 
+      color: var(--text-dark);
+      line-height: 1.5;
+    }
+
+    .header { 
+      background: #111827; 
+      color: white; 
+      padding: 1.25rem 2rem; 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+    .header p { font-size: 13px; color: #9ca3af; margin-top: 2px; }
+    
+    .live { 
+      background: rgba(16, 185, 129, 0.15); 
+      color: #34d399;
+      padding: 6px 14px; 
+      border-radius: 9999px; 
+      font-size: 12px; 
+      font-weight: 600;
+      display: flex; 
+      align-items: center; 
+      gap: 8px; 
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; animation: pulse 2s infinite; }
+    @keyframes pulse { 
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    .dashboard-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+      display: grid;
+      gap: 2rem;
+    }
+
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
+    .stat { 
+      background: var(--card-bg); 
+      border-radius: 12px; 
+      padding: 1.5rem; 
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-label { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-value { font-size: 32px; font-weight: 700; color: var(--text-dark); margin: 0.25rem 0; letter-spacing: -1px; }
+    .stat-sub { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    @media (min-width: 1024px) {
+      .main-grid { grid-template-columns: 350px 1fr; }
+    }
+
+    .sidebar { display: flex; flex-direction: column; gap: 2rem; }
+
+    .section-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+    .section-title { font-size: 14px; font-weight: 700; color: var(--text-dark); margin-bottom: 1.25rem; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .bar-row { margin-bottom: 1rem; }
+    .bar-row:last-child { margin-bottom: 0; }
+    .bar-label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; }
+    .bar-track { height: 8px; background: #f1f5f9; border-radius: 99px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 99px; }
+    .learn-fill { background: var(--color-learn); }
+    .farm-fill { background: var(--color-farm); }
+    .health-fill { background: var(--color-health); }
+
+    .lang-list { display: flex; flex-direction: column; gap: 0.75rem; }
+    .lang-card { 
+      background: #f8fafc; 
+      border-radius: 8px; 
+      padding: 0.75rem 1rem; 
+      border: 1px solid var(--border); 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between;
+    }
+    .lang-info { display: flex; align-items: center; gap: 12px; }
+    .lang-flag { font-size: 20px; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1)); }
+    .lang-name { font-size: 14px; font-weight: 600; color: var(--text-dark); }
+    .lang-count { font-size: 12px; font-weight: 600; color: var(--text-muted); background: #ffffff; padding: 2px 8px; border-radius: 6px; border: 1px solid var(--border); }
+
+    .feed { display: flex; flex-direction: column; gap: 1rem; }
+    .msg-card { 
+      background: var(--card-bg); 
+      border-radius: 12px; 
+      border: 1px solid var(--border); 
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+    .msg-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; }
+    
+    .badge { font-size: 11px; padding: 4px 10px; border-radius: 6px; font-weight: 700; letter-spacing: 0.5px; }
+    .learn-badge { background: #e6f4ea; color: #137333; }
+    .farm-badge { background: #e8f0fe; color: #1a73e8; }
+    .health-badge { background: #fce8e6; color: #c5221f; }
+    .other-badge { background: #f1f5f9; color: #475569; }
+    
+    .lang-badge { background: #f1f5f9; color: #475569; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); }
+    .msg-phone { font-size: 13px; font-weight: 600; color: var(--text-dark); margin-left: auto; }
+    .msg-time { font-size: 12px; color: var(--text-muted); }
+    
+    .msg-body { display: flex; flex-direction: column; gap: 0.75rem; }
+    .msg-q { font-size: 15px; color: var(--text-dark); font-weight: 500; padding-left: 4px; }
+    .msg-a { 
+      font-size: 14px; 
+      color: #334155; 
+      background: #f8fafc; 
+      border-radius: 8px; 
+      padding: 12px 16px; 
+      line-height: 1.6; 
+      border-left: 3px solid var(--border);
+    }
+    .msg-card:has(.learn-badge) .msg-a { border-left-color: var(--color-learn); }
+    .msg-card:has(.farm-badge) .msg-a { border-left-color: var(--color-farm); }
+    .msg-card:has(.health-badge) .msg-a { border-left-color: var(--color-health); }
+
+    .empty { text-align: center; padding: 4rem 2rem; color: var(--text-muted); font-size: 15px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>AfriAssist</h1>
+    <p>SMS & USSD AI Analytics Dashboard</p>
+  </div>
+  <div class="live"><div class="dot"></div> Live Stream</div>
+</div>
+
+<div class="dashboard-container">
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">Total Messages</div>
+      <div class="stat-value">{{ total }}</div>
+      <div class="stat-sub">All-time volume</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Unique Users</div>
+      <div class="stat-value">{{ unique_users }}</div>
+      <div class="stat-sub">Active phone numbers</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Languages</div>
+      <div class="stat-value">5</div>
+      <div class="stat-sub">Active locales</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Core Services</div>
+      <div class="stat-value">3</div>
+      <div class="stat-sub">Learn, Farm, Health</div>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <div class="sidebar">
+      <div class="section-card">
+        <div class="section-title">Service Share</div>
+        <div class="bar-row">
+          <div class="bar-label"><span>LEARN</span><span>{{ learn_count }}</span></div>
+          <div class="bar-track"><div class="bar-fill learn-fill" style="width: {{ learn_pct }}%"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label"><span>FARM</span><span>{{ farm_count }}</span></div>
+          <div class="bar-track"><div class="bar-fill farm-fill" style="width: {{ farm_pct }}%"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label"><span>HEALTH</span><span>{{ health_count }}</span></div>
+          <div class="bar-track"><div class="bar-fill health-fill" style="width: {{ health_pct }}%"></div></div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">Languages Used</div>
+        <div class="lang-list">
+          <div class="lang-card">
+            <div class="lang-info">
+              <span class="lang-flag">🇬🇧</span>
+              <span class="lang-name">English</span>
+            </div>
+            <span class="lang-count">{{ english_count }}</span>
+          </div>
+          <div class="lang-card">
+            <div class="lang-info">
+              <span class="lang-flag">🇺🇬</span>
+              <span class="lang-name">Luganda</span>
+            </div>
+            <span class="lang-count">{{ luganda_count }}</span>
+          </div>
+          <div class="lang-card">
+            <div class="lang-info">
+              <span class="lang-flag">🌍</span>
+              <span class="lang-name">Swahili</span>
+            </div>
+            <span class="lang-count">{{ swahili_count }}</span>
+          </div>
+          <div class="lang-card">
+            <div class="lang-info">
+              <span class="lang-flag">🇺🇬</span>
+              <span class="lang-name">Runyankole</span>
+            </div>
+            <span class="lang-count">{{ runyankole_count }}</span>
+          </div>
+          <div class="lang-card">
+            <div class="lang-info">
+              <span class="lang-flag">🇺🇬</span>
+              <span class="lang-name">Acholi</span>
+            </div>
+            <span class="lang-count">{{ acholi_count }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feed-column">
+      <div class="feed">
+        {% if messages %}
+          {% for msg in messages %}
+          <div class="msg-card">
+            <div class="msg-meta">
+              <span class="badge {% if msg.message_type == 'LEARN' %}learn-badge{% elif msg.message_type == 'FARM' %}farm-badge{% elif msg.message_type == 'HEALTH' %}health-badge{% else %}other-badge{% endif %}">
+                {{ msg.message_type }}
+              </span>
+              <span class="lang-badge">{{ msg.language }}</span>
+              <span class="msg-phone">{{ msg.phone }}</span>
+              <span class="msg-time">{{ msg.created_at|date:"H:i" }}</span>
+            </div>
+            <div class="msg-body">
+              <div class="msg-q"><strong>Q:</strong> {{ msg.question }}</div>
+              <div class="msg-a">{{ msg.answer }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty">
+            <p>No transactions streaming yet. Send an SMS or interact with the USSD endpoint to update this view live.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
