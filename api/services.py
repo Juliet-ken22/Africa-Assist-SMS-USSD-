@@ -15,6 +15,11 @@ AT_SMS_URL_LIVE = "https://api.africastalking.com/version1/messaging/"
 def send_sms(phone, message):
     try:
         url = AT_SMS_URL_SANDBOX if ENVIRONMENT == 'development' else AT_SMS_URL_LIVE
+        print(f"Environment: {ENVIRONMENT}")
+        print(f"Using URL: {url}")
+        print(f"Sending to: {phone}")
+        print(f"AT_USERNAME: {AT_USERNAME}")
+        
         headers = {
             "Accept": "application/json",
             "Content-Type": "application/x-www-form-urlencoded",
@@ -22,12 +27,13 @@ def send_sms(phone, message):
         }
         payload = {
             "username": AT_USERNAME,
-            "from":"10614",
-            "to": phone,
-            "message": message
+            "to": phone,        # user's phone number
+            "message": message,
+            "from": "10614"     # your shortcode
         }
         response = requests.post(url, headers=headers, data=payload, verify=False)
-        print(f"SMS sent: {response.json()}")
+        print(f"Response status: {response.status_code}")
+        print(f"Response text: {response.text}")
         return response.json()
     except Exception as e:
         print(f"SMS send error: {e}")
