@@ -34,7 +34,7 @@ def sms_reply(request):
             "English": "Reply in English.",
         }
 
-        # Detect language prefix
+        # Check for language prefix
         detected_language = "English"
         clean_message = message
 
@@ -47,59 +47,61 @@ def sms_reply(request):
         lang_instruction = LANG_INSTRUCTIONS[detected_language]
         clean_upper = clean_message.upper()
 
-        # Smart prompt that handles any message automatically
-        smart_prompt = """
-You are AfriAssist, an AI assistant for Ugandans.
-You help with Education, Farming and Health questions.
-Automatically detect what the user is asking about and answer appropriately:
-- For education/learning questions: explain clearly at the right level
-- For farming questions: give practical Uganda-specific advice
-- For health questions: give basic safe advice and recommend visiting a health center for serious issues
-- For anything else: answer helpfully and briefly
-Always keep answers under 100 words.
-Never ask the user to use keywords or change their message format.
-"""
-
         if clean_upper.startswith("LEARN"):
             question = clean_message[5:].strip()
             if not question:
-                question = clean_message
-            prompt = education_prompt + f"\n{lang_instruction}"
-            msg_type = "LEARN"
+                reply = "Please add a question. Example: LEARN What is gravity?"
+                msg_type = "OTHER"
+            else:
+                prompt = education_prompt + f"\n{lang_instruction}"
+                reply = ask_ai(prompt, question)
+                msg_type = "LEARN"
 
         elif clean_upper.startswith("FARM"):
             question = clean_message[4:].strip()
             if not question:
-                question = clean_message
-            prompt = farming_prompt + f"\n{lang_instruction}"
-            msg_type = "FARM"
+                reply = "Please add a question. Example: FARM My maize has yellow leaves."
+                msg_type = "OTHER"
+            else:
+                prompt = farming_prompt + f"\n{lang_instruction}"
+                reply = ask_ai(prompt, question)
+                msg_type = "FARM"
 
         elif clean_upper.startswith("HEALTH"):
             question = clean_message[6:].strip()
             if not question:
-                question = clean_message
-            prompt = health_prompt + f"\n{lang_instruction}"
-            msg_type = "HEALTH"
+                reply = "Please add a question. Example: HEALTH My child has a fever."
+                msg_type = "OTHER"
+            else:
+                prompt = health_prompt + f"\n{lang_instruction}"
+                reply = ask_ai(prompt, question)
+                msg_type = "HEALTH"
 
         else:
-            # No keyword — use smart prompt to answer anything!
             question = clean_message
-            prompt = smart_prompt + f"\n{lang_instruction}"
-            msg_type = "LEARN"  # default type
-
-        if not question:
-            reply = "Welcome to AfriAssist! Ask me anything about farming, health or education."
-        else:
-            reply = ask_ai(prompt, question)
+            msg_type = "OTHER"
+            reply = (
+                "Welcome to AfriAssist!\n"
+                "Send: LEARN / FARM / HEALTH + question\n\n"
+                "For other languages add prefix:\n"
+                "LG = Luganda\n"
+                "SW = Swahili\n"
+                "RN = Runyankole\n"
+                "AC = Acholi\n\n"
+                "Example:\n"
+                "LG LEARN Fotosintesisi kiki?\n"
+                "SW FARM Mimea ina majani ya njano"
+            )
 
         Message.objects.create(
             phone=phone,
             message_type=msg_type,
-            question=question,
+            question=question if 'question' in locals() else clean_message,
             answer=reply,
             language=detected_language
         )
 
+        # Send reply back to user
         send_sms(phone, reply)
 
         return HttpResponse(reply, content_type="text/plain")
